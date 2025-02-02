@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    restart: always
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      # Kafka가 zookeeper 컨테이너의 2181 포트를 통해 연결하도록 설정
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      # 보안 설정 없이(PLAINTEXT) Kafka가 컨테이너 내부에서 9092 포트로 메시지를 수신하도록 설정
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      # Kafka가 외부에서 접근할 때 사용할 호스트 및 포트 정보를 광고(advertise) 하는 설정입니다.
+      # localhost:9092로 설정하면, Kafka 브로커가 자신을 localhost:9092로 외부에 알리게 됩니다.
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      # 보안 인증 없이 PLAINTEXT(일반 텍스트) 방식으로 Kafka를 실행할 수 있도록 허용하는 옵션
+      - ALLOW_PLAINTEXT_LISTENER=yes
