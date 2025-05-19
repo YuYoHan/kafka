@@ -17,7 +17,7 @@ public class SimpleProducer {
         // bootstrap.servers, Producer -> Serialization -> Broker -> Consumer -> Deserialization
         // key.serializer.class, value.serializer.class
         // null, "hello world"
-        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.56.101:9092");
         props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
