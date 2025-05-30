@@ -51,8 +51,8 @@ public class ConsumerWakeUp {
             while(true) {
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(1000));
                 for(ConsumerRecord record : consumerRecords) {
-                    LOGGER.debug("record key : {}, record value : {}, partition : {}",
-                            record.key(), record.value(), record.partition());
+                    LOGGER.debug("record key : {}, record value : {}, partition : {}, offset : {}",
+                            record.key(), record.value(), record.partition(), record.offset());
                 }
             }
         } catch (WakeupException e) {
