@@ -27,12 +27,23 @@ public class ConsumerWakeUp {
         KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(properties);
         kafkaConsumer.subscribe(List.of(topicName));
 
-        // 시스템이 끝나기전에 마지막으로 동작을 시킬 수 있도록 하는 메소드
+        // main thread
+        Thread mainThread = Thread.currentThread();
+
+
+        // main thread 끝나기전에 마지막으로 동작을 시킬 수 있도록 하는 메소드
+        // main thread 종료시 별도의 thread로 kafkaConsumer wakeup 실행
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 LOGGER.debug("main program starts to exit calling wakeup() method");
                 // kafkaConumser.poll() 중에 exception을 발생시키는 용도
                 kafkaConsumer.wakeup();
+
+                try {
+                    mainThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
