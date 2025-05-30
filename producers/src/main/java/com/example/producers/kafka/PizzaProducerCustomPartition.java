@@ -15,8 +15,11 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class PizzaProducer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(PizzaProducer.class.getName());
+public class PizzaProducerCustomPartition {
+    public static final Logger LOGGER = LoggerFactory.getLogger(PizzaProducerCustomPartition.class.getName());
+
+
+
 
     public static void sendPizzaMessage(KafkaProducer<String, String> kafkaProducer,
                                         String topicName, int iterCount,
@@ -49,11 +52,9 @@ public class PizzaProducer {
     public static void sendMessage(KafkaProducer<String, String> kafkaProducer,
                                    ProducerRecord<String, String> producerRecord,
                                    HashMap<String, String> pMessage, boolean sync) {
-        if(!sync) {
-            // KafkaProducer message send
-            // new Callback을 람다식으로 변형
+        if (!sync) {
             kafkaProducer.send(producerRecord, (metadata, exception) -> {
-                if(exception == null) {
+                if (exception == null) {
                     LOGGER.info("record metadata received \n" +
                             "partition : " + metadata.partition() + "\n" +
                             "offset : " + metadata.offset() + "\n" +
@@ -63,23 +64,20 @@ public class PizzaProducer {
                 }
             });
         } else {
-            try (kafkaProducer) {
-                // KafkaProducer message send
-                RecordMetadata recordMetadata = kafkaProducer.send(producerRecord).get();
+            try {
+                RecordMetadata recordMetadata = kafkaProducer.send(producerRecord).get(); // ✅ 그냥 sync로 기다리기만
                 LOGGER.info("record metadata received \n" +
                         "partition : " + recordMetadata.partition() + "\n" +
                         "offset : " + recordMetadata.offset() + "\n" +
                         "timestamp : " + recordMetadata.timestamp());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
     public static void main(String[] args) {
         // 메시지 보낼 TOPIC 이름 설정
-        String topicName = "pizza-topic";
+        String topicName = "pizza-topic-partitioner";
 
         // KafkaProducer 환경 설정
         Properties props = new Properties();
@@ -89,33 +87,20 @@ public class PizzaProducer {
         props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.56.101:9092");
         props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        // batch 세팅
-        props.setProperty(ProducerConfig.BATCH_SIZE_CONFIG, "32000");
-        props.setProperty(ProducerConfig.LINGER_MS_CONFIG, "20");
-
+        props.setProperty("specialKey", "P001");
+        props.setProperty(ProducerConfig.PARTITIONER_CLASS_CONFIG, "com.example.producers.kafka.CustomPartitioner");
 
         // KafkaProducer 객체 생성
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(props);
 
-        for(int seq = 0; seq < 20; seq++) {
-            // ProducerRecord 객체 생성
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topicName, String.valueOf(seq), "hello kafka " + seq);
-
-
-        }
-
         try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sendPizzaMessage(kafkaProducer, topicName,
+                    -1, 100, 0, 0, true);
+        } finally {
+            // 메시지 flush 및 close
+            kafkaProducer.flush();
+            kafkaProducer.close();
         }
 
-        sendPizzaMessage(kafkaProducer, topicName,
-                -1, 10, 100, 100, false);
-
-        // 메시지 flush 및 close
-        kafkaProducer.flush();
-        kafkaProducer.close();
     }
 }
