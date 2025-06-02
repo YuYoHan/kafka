@@ -49,11 +49,9 @@ public class PizzaProducer {
     public static void sendMessage(KafkaProducer<String, String> kafkaProducer,
                                    ProducerRecord<String, String> producerRecord,
                                    HashMap<String, String> pMessage, boolean sync) {
-        if(!sync) {
-            // KafkaProducer message send
-            // new Callback을 람다식으로 변형
+        if (!sync) {
             kafkaProducer.send(producerRecord, (metadata, exception) -> {
-                if(exception == null) {
+                if (exception == null) {
                     LOGGER.info("record metadata received \n" +
                             "partition : " + metadata.partition() + "\n" +
                             "offset : " + metadata.offset() + "\n" +
@@ -63,20 +61,18 @@ public class PizzaProducer {
                 }
             });
         } else {
-            try (kafkaProducer) {
-                // KafkaProducer message send
+            try {
                 RecordMetadata recordMetadata = kafkaProducer.send(producerRecord).get();
                 LOGGER.info("record metadata received \n" +
                         "partition : " + recordMetadata.partition() + "\n" +
                         "offset : " + recordMetadata.offset() + "\n" +
                         "timestamp : " + recordMetadata.timestamp());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
+
     public static void main(String[] args) {
         // 메시지 보낼 TOPIC 이름 설정
         String topicName = "pizza-topic";
@@ -98,21 +94,8 @@ public class PizzaProducer {
         // KafkaProducer 객체 생성
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(props);
 
-        for(int seq = 0; seq < 20; seq++) {
-            // ProducerRecord 객체 생성
-            ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topicName, String.valueOf(seq), "hello kafka " + seq);
-
-
-        }
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         sendPizzaMessage(kafkaProducer, topicName,
-                -1, 10, 100, 100, false);
+                -1, 500, 0, 0, true);
 
         // 메시지 flush 및 close
         kafkaProducer.flush();
