@@ -16,13 +16,15 @@ import java.util.Properties;
 public class ConsumerWakeUp {
     public static final Logger LOGGER = LoggerFactory.getLogger(ConsumerWakeUp.class.getName());
     public static void main(String[] args) {
-        String topicName = "simple-topic";
+        String topicName = "pizza-topic";
 
         Properties properties = new Properties();
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.56.101:9092");
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group_01");
+//        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group_01");
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-01-static");
+        properties.setProperty(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, "1");
 
         KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(properties);
         kafkaConsumer.subscribe(List.of(topicName));
