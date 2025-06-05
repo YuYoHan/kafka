@@ -1,0 +1,32 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.apache.kafka:kafka-clients:3.7.0' // Apache Kafka 3.7.0 기준
+	implementation 'org.slf4j:slf4j-api:2.0.9' // 버전은 Kafka와 호환되게 설정
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'net.datafaker:datafaker:2.0.2'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
