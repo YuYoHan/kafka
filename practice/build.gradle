@@ -25,6 +25,9 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:2.0.9' // 버전은 Kafka와 호환되게 설정
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'net.datafaker:datafaker:2.0.2'
+	implementation 'org.postgresql:postgresql:42.7.2'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
+
 }
 
 tasks.named('test') {
