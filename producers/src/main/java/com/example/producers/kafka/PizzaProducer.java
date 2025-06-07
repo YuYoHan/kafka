@@ -75,14 +75,14 @@ public class PizzaProducer {
 
     public static void main(String[] args) {
         // 메시지 보낼 TOPIC 이름 설정
-        String topicName = "pizza-topic";
+        String topicName = "pizza-topic-p3r3";
 
         // KafkaProducer 환경 설정
         Properties props = new Properties();
         // bootstrap.servers, Producer -> Serialization -> Broker -> Consumer -> Deserialization
         // key.serializer.class, value.serializer.class
         // null, "hello world"
-        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.56.101:9092");
+        props.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.56.101:9092, 192.168.56.101:9093, 192.168.56.101:9094");
         props.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
